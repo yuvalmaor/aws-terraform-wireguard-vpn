@@ -19,7 +19,7 @@ variable "vpc_id" {
 }
 
 variable "instance_sg" {
-
+  #type = string
 }
 
 

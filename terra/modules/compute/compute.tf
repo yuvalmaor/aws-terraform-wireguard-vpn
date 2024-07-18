@@ -4,7 +4,9 @@ resource "aws_instance" "terraform_instance" {
   iam_instance_profile = aws_iam_instance_profile.ec2_terraform_profile.name
   key_name = "yuvalaws_key"
   user_data =  file("install_docker_terra_ubuntu.sh")
-  
+  subnet_id =  var.subnets_id[0]
+  #vpc_security_group_ids = var.instance_sg
+  vpc_security_group_ids = [var.instance_sg.id]
 
   tags = {
     Name = "TerraformEC2InstanceYUVAL"

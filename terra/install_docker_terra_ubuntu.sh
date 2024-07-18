@@ -51,5 +51,87 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
 sudo apt-get update
 sudo apt-get install -y kubectl
-sudo apt-get install ec2-instance-connect
+sudo apt-get install ec2-instance-connect -y
 echo "8 " >> /a.txt
+sudo apt install wireguard wireguard-tools resolvconf -y
+echo "9 " >> /a.txt
+
+
+echo "10 " >> /a.txt
+
+cat <<EOF >output.txt
+This is line 1.
+This is line 2.
+This is line 3.
+EOF
+
+sudo echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+sudo echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+sudo sysctl -p
+echo "11 " >> /a.txt
+
+sudo mkdir /etc/wireguard
+sudo chmod 700 /etc/wireguard
+echo "12 " >> /a.txt
+# Generate server and client keys
+SERVER_PRIVATE_KEY=$(wg genkey)
+SERVER_PUBLIC_KEY=$(echo $SERVER_PRIVATE_KEY | wg pubkey)
+CLIENT_PRIVATE_KEY=$(wg genkey)
+CLIENT_PUBLIC_KEY=$(echo $CLIENT_PRIVATE_KEY | wg pubkey)
+echo $SERVER_PRIVATE_KEY >>server_private_key.txt
+echo $SERVER_PUBLIC_KEY >>server_public_key.txt
+echo $CLIENT_PRIVATE_KEY >>client_private_key.txt
+echo $CLIENT_PUBLIC_KEY >>client_public_key.txt
+
+
+echo "12.1 " >> /a.txt
+# Display the keys (optional)
+echo "Server Private Key: $SERVER_PRIVATE_KEY"
+echo "Server Public Key: $SERVER_PUBLIC_KEY"
+echo "Client Private Key: $CLIENT_PRIVATE_KEY"
+echo "Client Public Key: $CLIENT_PUBLIC_KEY"
+echo "12.2 " >> /a.txt
+# Create the WireGuard configuration file for the server
+cat <<EOF > /etc/wireguard/wg0.conf
+[Interface]
+Address = 192.168.2.1/24
+MTU = 1420
+ListenPort = 51820
+PrivateKey = $SERVER_PRIVATE_KEY
+SaveConfig = true
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT
+PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostUp = iptables -A FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT
+PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+[Peer]
+PublicKey = $CLIENT_PUBLIC_KEY
+AllowedIPs = 192.168.2.2/32
+EOF
+echo "12.3 " >> /a.txt
+# Adjust firewall rules
+ufw allow 51820/udp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 53/udp
+sudo ufw allow 22/tcp
+sudo ufw allow OpenSSH
+sudo ufw disable
+sudo ufw enable
+sudo ufw reload
+
+
+# Start the WireGuard server
+#wg-quick up wg0
+sudo systemctl enable wg-quick@wg0.service
+sudo systemctl start wg-quick@wg0.service
+
+# Enable WireGuard to start on boot
+#systemctl enable wg-quick@wg0
+echo "12.4 " >> /a.txt
+
+echo "12.5 " >> /a.txt
+
+echo "13 " >> /a.txt
