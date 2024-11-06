@@ -1,5 +1,5 @@
 resource "aws_instance" "terraform_instance" {
-  ami           = "ami-007020fd9c84e18c7"  // Example AMI ID for Amazon Linux in ap-south-1
+  ami           = "ami-07f539dd564bbd394"  // Example AMI ID for Amazon Linux in ap-south-1
   instance_type = var.instance_type
   iam_instance_profile = aws_iam_instance_profile.ec2_terraform_profile.name
   key_name = "yuvalaws_key"

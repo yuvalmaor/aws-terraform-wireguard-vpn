@@ -7,9 +7,9 @@ tags = {
 
 env = "protfolio"
 
-region = "ap-south-1"
+region = "il-central-1"
 
-availability_zones = ["ap-south-1a", "ap-south-1b"]
+availability_zones = ["il-central-1a", "il-central-1b"]
 cidr_blocks        = ["10.0.1.0/24", "10.0.2.0/24"]
 #private_cidr_blocks        = ["10.0.5.0/24", "10.0.6.0/24"]
 

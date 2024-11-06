@@ -11,7 +11,7 @@ terraform {
   backend "s3" {
     bucket = "yuval-s3-state"
     key    = "portfo/terraform.state"
-    region = "ap-south-1"
+    region = "il-central-1"
     dynamodb_table = "yuval-terraform-locks"
   }
 }
@@ -19,7 +19,7 @@ terraform {
 
 
 provider "aws" {
-  region = "ap-south-1"
+  region = "il-central-1"
   default_tags {
     tags = var.tags
   }
